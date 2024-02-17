@@ -6,7 +6,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>LibGDX-Toolbox</artifactId>
-    <version>1.0.0-alpha</version>
+    <version>SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -60,6 +60,7 @@
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx</artifactId>
             <version>1.12.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx-backend-lwjgl3 -->
@@ -67,18 +68,21 @@
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-backend-lwjgl3</artifactId>
             <version>1.12.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-freetype</artifactId>
             <version>1.12.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-platform</artifactId>
             <version>1.12.1</version>
             <classifier>natives-desktop</classifier>
+            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.lwjgl/lwjgl -->
@@ -86,6 +90,7 @@
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
             <version>3.3.3</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -93,6 +98,7 @@
             <artifactId>maven-shade-plugin</artifactId>
             <version>3.5.1</version>
             <type>maven-plugin</type>
+            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx-freetype -->
@@ -101,6 +107,7 @@
             <artifactId>gdx-freetype-platform</artifactId>
             <version>1.12.1</version>
             <classifier>natives-desktop</classifier>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
