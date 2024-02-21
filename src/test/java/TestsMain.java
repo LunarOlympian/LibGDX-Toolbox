@@ -1,18 +1,23 @@
 import Events.Event;
-import Events.Trigger;
 import org.junit.Test;
 
 public class TestsMain {
 
     @Test
-    public void EventsTest() {
-        new Trigger(new testEvent("123"));
+    public void EventsTest() throws InterruptedException {
+        TestEvent event = new TestEvent("123");
+        event.trigger();
+
+        Thread.sleep(5000);
+
+        event.trigger();
     }
 
 
-    public class testEvent implements Event {
+    public class TestEvent extends Event {
+        private int runCount = 0;
 
-        public testEvent(String test) {
+        public TestEvent(String test) {
             System.out.println("Test");
         }
 
@@ -22,7 +27,14 @@ public class TestsMain {
 
         @Override
         public void trigger() {
-            testingABitMore();
+            if(runCount == 0) {
+                testingABitMore();
+                runCount++;
+            }
+            else {
+                System.out.println("h123");
+                endEvent();
+            }
         }
     }
 }
