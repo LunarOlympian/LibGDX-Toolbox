@@ -8,6 +8,10 @@ public class Event {
         endEvent();
     }
 
+    public void trigger(Object... arguments) {
+        endEvent();
+    }
+
     public void endEvent() {
         active = false;
     }
