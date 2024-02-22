@@ -7,18 +7,22 @@ import com.badlogic.gdx.math.Vector3;
 
 public class MeshClone {
     private Mesh original;
-    private float scale = 1f;
+    private float scaleX = 1f;
+    private float scaleY = 1f;
+    private float scaleZ = 1f;
     private Matrix4 offset = new Matrix4().setToTranslation(0f, 0f, 0f);
 
     public MeshClone(Mesh original) {
         this.original = original;
     }
 
-    public MeshClone(Mesh original, float scale, Vector3 offset) {
+    public MeshClone(Mesh original, float setScale, Vector3 offset) {
         // Copy so no pointer BS
         this.original = original.copy(false);
-        this.original.scale(scale, scale, scale);
-        this.scale = scale;
+        this.original.scale(setScale, setScale, setScale);
+        this.scaleX = setScale;
+        this.scaleY = setScale;
+        this.scaleZ = setScale;
         this.offset = new Matrix4().setToTranslation(offset.x, offset.y, offset.z);
     }
 
@@ -33,9 +37,11 @@ public class MeshClone {
         return this;
     }
     public MeshClone setScale(float scaleX, float scaleY, float scaleZ) {
-        this.original.scale(1 / this.scale, 1 / this.scale, 1 / this.scale);
-        this.original.scale(scale, scale, scale);
-        this.scale = scale;
+        this.original.scale(1 / this.scaleX, 1 / this.scaleY, 1 / this.scaleZ);
+        this.original.scale(scaleX, scaleY, scaleZ);
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        this.scaleZ = scaleZ;
         return this;
     }
     public MeshClone setOffset(Vector3 offset) {
