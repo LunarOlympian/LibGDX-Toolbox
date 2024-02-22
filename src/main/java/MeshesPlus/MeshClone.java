@@ -28,8 +28,11 @@ public class MeshClone {
         this.offset = new Matrix4().setToTranslation(offset.x, offset.y, offset.z);
     }
 
-    // Modifications to it
     public MeshClone setScale(float scale) {
+        this.setScale(scale, scale, scale);
+        return this;
+    }
+    public MeshClone setScale(float scaleX, float scaleY, float scaleZ) {
         this.original.scale(1 / this.scale, 1 / this.scale, 1 / this.scale);
         this.original.scale(scale, scale, scale);
         this.scale = scale;
