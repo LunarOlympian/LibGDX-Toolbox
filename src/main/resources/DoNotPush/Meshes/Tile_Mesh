@@ -1,0 +1,141 @@
+a_position // Alias
+Position // Vertex attribute usage
+3 // Component count
+true // Static
+1 // Flexible point count multiplier
+true // connected_vertices attribute
+
+// Top and bottom are 2 units. Tiles are 1 unit thick.
+
+// Defines the core and sets the default core to it.
+!core
+0, 0, 0
+!
+!def core
+0
+!
+
+
+// Sets the vertices
+!vert
+
+// Top side!
+// ----------
+// Middle
+0, 0.25, 0 // 0
+
+// Top
+// These are kinda swapped from my usual naming scheme. It's just for prettier index declaration.
+-1, 0.25, 1.732 // 1
+1, 0.25, 1.732 // 2
+
+// Right
+2, 0.25, 0 // 3
+
+// Bottom
+1, 0.25, -1.732 // 4
+-1, 0.25, -1.732 // 5
+
+// Left
+-2, 0.25, 0 // 6
+// ----------
+
+
+
+// Bottom side!
+// ----------
+// Middle
+0, -0.25, 0 // 7
+
+// Top
+-1, -0.25, 1.732 // 8
+1, -0.25, 1.732 // 9
+
+// Right
+2, -0.25, 0 // 10
+
+// Bottom
+1, -0.25, -1.732 // 11
+-1, -0.25, -1.732 // 12
+
+// Left
+-2, -0.25, 0 // 13
+// ----------
+!
+
+
+// Defines the indices
+!ind
+
+// Top side!
+// ----------
+// Top
+0, 1, 2
+
+// Top right
+0, 2, 3
+
+// Bottom right
+0, 3, 4
+
+// Bottom
+0, 4, 5
+
+// Bottom left
+0, 5, 6
+
+// Top left
+0, 6, 1
+// ----------
+
+
+
+// Bottom side!
+// ----------
+// Top
+7, 8, 9
+
+// Top right
+7, 9, 10
+
+// Bottom right
+7, 10, 11
+
+// Bottom
+7, 11, 12
+
+// Bottom left
+7, 12, 13
+
+// Top left
+7, 13, 8
+// ----------
+
+
+// Sides of it!
+// Top
+2, 1, 9
+8, 1, 9
+
+// Top right
+3, 2, 10
+9, 2, 10
+
+// Bottom right
+4, 3, 11
+10, 3, 11
+
+// Bottom
+5, 4, 12
+11, 4, 12
+
+// Bottom left
+6, 5, 13
+12, 5, 13
+
+// Top left
+1, 6, 8
+13, 6, 8
+
+
+!

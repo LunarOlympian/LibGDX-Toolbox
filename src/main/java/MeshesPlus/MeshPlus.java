@@ -4,19 +4,26 @@ import MeshesPlus.MeshParts.MeshCore;
 import MeshesPlus.MeshParts.MeshIndex;
 import MeshesPlus.MeshParts.MeshVertex;
 import MeshesPlus.MeshParts.TextureConstructor;
+import MeshesPlus.tools.MeshPlusTools;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.utils.BufferUtils;
+import org.lwjgl.opengl.GL40;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ShortBuffer;
 import java.nio.file.Files;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class MeshConstructor {
+public class MeshPlus {
+
+    private MeshPlusTools meshPlusTools = new MeshPlusTools();
     // --------------------------------------------------
     // Variable declaration
     // --------------------------------------------------
@@ -48,6 +55,7 @@ public class MeshConstructor {
     // --------------------
     // Texture stuff
     // --------------------
+
     // Only if the texture is set.
     private Texture texture;
     // Used to store potential textures. To reduce memory load textures are stored as files until explicitly called.
@@ -57,14 +65,22 @@ public class MeshConstructor {
     // -------------------------
     // Variables from setters
     // -------------------------
+    private MeshVertex meshPosition = new MeshVertex(0f, 0f, 0f); // Maybe update to a vector3
 
-    private MeshVertex meshPosition = new MeshVertex(0f, 0f, 0f);
+    // -------------------------
+    // Buffer info
+    // -------------------------
+    private int vaoID = -1;
+    private int vboID;
+    private int eboID;
+
+    private ShortBuffer indexBuffer;
 
 
     // --------------------------------------------------
-    // Getters and setters
+    // Constructor
     // --------------------------------------------------
-    public MeshConstructor(File template) {
+    public MeshPlus(File template) {
         if(!template.getName().endsWith("_Mesh")) {
             // Accesses contents
             for(File file : Objects.requireNonNull(template.listFiles())) {
@@ -92,7 +108,7 @@ public class MeshConstructor {
         makeMesh();
     }
 
-    public MeshConstructor(String template) {
+    public MeshPlus(String template) {
         this.template = template;
         makeMesh();
     }
@@ -110,7 +126,7 @@ public class MeshConstructor {
     // Possibly add in rotation.
 
     // --------------------------------------------------
-    // Constructor
+    // Makes the mesh
     // --------------------------------------------------
     private void makeMesh() {
         try {
@@ -173,7 +189,10 @@ public class MeshConstructor {
                         else {
                             mode = -1;
                         }
-                        setters(line, lineCount);
+                        builders(line, lineCount);
+                    }
+                    else if(line.startsWith(".")) {
+                        setters(line);
                     }
                     else {
                         String[] optimizedLineString = line.trim().replace(" ", "")
@@ -326,10 +345,33 @@ public class MeshConstructor {
                 }
                 lineCount++;
             }
+            bufferize();
         }
         catch(IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    // This makes the points into a buffer.
+    private void bufferize() {
+        // Sets the vertex array
+        this.vaoID = GL40.glGenVertexArrays();
+        GL40.glBindVertexArray(vaoID);
+
+        // Creates a vertex buffer object
+        this.vboID = GL40.glGenBuffers();
+        GL40.glBindBuffer(GL40.GL_ARRAY_BUFFER, vboID);
+        GL40.glBufferData(GL40.GL_ARRAY_BUFFER, getVertices(), GL40.GL_STATIC_DRAW);
+
+        // Handles index buffers.
+        this.eboID = GL40.glGenBuffers();
+        GL40.glBindBuffer(GL40.GL_ELEMENT_ARRAY_BUFFER, this.eboID);
+        this.indexBuffer = BufferUtils.newShortBuffer(this.indices.size());
+        this.indexBuffer.flip();
+        GL40.glBufferData(GL40.GL_ELEMENT_ARRAY_BUFFER, getIndices(), GL40.GL_STATIC_DRAW);
+
+        GL40.glBindVertexArray(0);
+        GL40.glEnableVertexAttribArray(0);
     }
 
     // Can be overridden. If it is this returns null that means it's been overridden. If it's overridden it checks
@@ -338,6 +380,8 @@ public class MeshConstructor {
     // --------------------------------------------------
     // Mesh creation
     // --------------------------------------------------
+
+    // This is for LibGDX support. Entirely possible to use just this with LibGDX Toolbox
     public Mesh toMesh() {
         // Sets the usage
         int usage = switch (VAU.toLowerCase()) {
@@ -424,9 +468,15 @@ public class MeshConstructor {
         return currentMode;
     }
 
-    // Just stuff that isn't mandatory, like a texture.
-    private void setters(String line, int lineNum) {
-        if(line.trim().toLowerCase().startsWith("?texture apply ")) {
+    // Builders. Used for building stuff quickly.
+    private void builders(String line, int lineNum) {
+        if(line.toLowerCase().trim().replace(" ", "").startsWith("?construct")) {
+            constructors(lineNum);
+        }
+    }
+
+    private void setters(String line) {
+        if(line.trim().toLowerCase().startsWith(".texture apply ")) {
             // Searches to see if the file exists.
             String searchingTexture = line.split(" ")[2];
             for(File file : texturePaths) {
@@ -437,9 +487,6 @@ public class MeshConstructor {
                 }
             }
         }
-        else if(line.toLowerCase().trim().replace(" ", "").startsWith("?construct")) {
-            constructors(lineNum);
-        }
     }
 
     // Automatically builds stuff. This includes adding vertices and indices
@@ -447,15 +494,22 @@ public class MeshConstructor {
 
         // Just some info it will need and fill in as it loops.
         String shape = "";
+
+        // For spheres
         double radius = 0;
         int points = 0;
         MeshVertex center = null;
 
+        // Planes
+        int xSpacing = 0;
+        int xCount = 0;
+        int zSpacing = 0;
+        int zCount = 0;
+
         // Gets the line count and starts looping there.
         String[] lines = template.split("\n");
         while(true) {
-
-            String line = lines[startLine];
+            String line = lineCommentHandler(lines[startLine]);
 
             // ----------------------------------------------------------------------------------
             // Checks what shape you want to make.
@@ -463,27 +517,56 @@ public class MeshConstructor {
                 // Sets mode to sphere.
                 shape = "Sphere";
             }
+            else if(line.trim().equalsIgnoreCase("?construct plane")) {
+                // Sets mode to sphere.
+                shape = "plane";
+            }
             // ----------------------------------------------------------------------------------
 
             // ----------------------------------------------------------------------------------
-            // Checks info, namely point count and center of the mesh
-            if(line.toLowerCase().startsWith("center ")) {
-                String[] splitLine = line.toLowerCase().replace("center ", "").replace(",", "").trim().split(" ");
-                center = new MeshVertex(Float.parseFloat(splitLine[0]), Float.parseFloat(splitLine[1]), Float.parseFloat(splitLine[2]));
-            }
-
-            if(line.toLowerCase().startsWith("radius ")) {
-                radius = Double.parseDouble(line.toLowerCase().replace("radius ", "").trim());
-            }
-
-            // Points are the points between the set vertices
-            if(line.toLowerCase().startsWith("points ")) {
-                points = Integer.parseInt(line.toLowerCase().replace("points ", "").trim());
-                if(points < 0) {
-                    throw new IllegalArgumentException("Points in sphere cannot be less than 0");
+            // For specific shapes.
+            if(shape.equalsIgnoreCase("sphere")) {
+                if (line.toLowerCase().startsWith("center ")) {
+                    String[] splitLine = line.toLowerCase().replace("center ", "").replace(",", "").trim().split(" ");
+                    center = new MeshVertex(Float.parseFloat(splitLine[0]), Float.parseFloat(splitLine[1]), Float.parseFloat(splitLine[2]));
                 }
-                else if(points > 20000) {
-                    throw new IllegalArgumentException("Points cannot be greater than 20,000.");
+
+                if (line.toLowerCase().startsWith("radius ")) {
+                    radius = Double.parseDouble(line.toLowerCase().replace("radius ", "").trim());
+                }
+
+                // Points are the points between the set vertices
+                if (line.toLowerCase().startsWith("points ")) {
+                    points = Integer.parseInt(line.toLowerCase().replace("points ", "").trim());
+                    if (points < 0) {
+                        throw new IllegalArgumentException("Points in sphere cannot be less than 0");
+                    } else if (points > 20000) {
+                        throw new IllegalArgumentException("Points cannot be greater than 20,000.");
+                    }
+                }
+            }
+            else if(shape.equalsIgnoreCase("plane")) {
+                // Needs dimensions and points in each direction.
+                if(line.toLowerCase().startsWith("x ")) {
+                    String[] splitLine = line.
+                            replace("x ", "").
+                            replace(" ", "").
+                            trim().
+                            split(",");
+
+                    xSpacing = Integer.parseInt(splitLine[0]);
+                    xCount = Integer.parseInt(splitLine[1]);
+                }
+
+                else if(line.toLowerCase().startsWith("z ")) {
+                    String[] splitLine = line.
+                            replace("z ", "").
+                            replace(" ", "").
+                            trim().
+                            split(",");
+
+                    zSpacing = Integer.parseInt(splitLine[0]);
+                    zCount = Integer.parseInt(splitLine[1]);
                 }
             }
 
@@ -502,111 +585,25 @@ public class MeshConstructor {
         // Generates the actual mesh.
         // Not a TON of code, just a lot of comments :)
         if(shape.equalsIgnoreCase("Sphere") && center != null) {
-            // Gets the total count of points.
-            int pointCount = (int) ((points * 12) + 6 + (Math.pow(points, 2) * 8));
-            // * 12 gets the 3 interlocking circles points that aren't on a circle intersection.
-            // + 6 gets the intersections, including the top and bottom points.
-            // (Math.pow(points, 2) * 8) gets the remaining points.
+            AbstractMap.SimpleEntry<ArrayList<MeshVertex>, ArrayList<MeshIndex>> sphereDataPair =
+                    meshPlusTools.generateSphere(points, vertices.size(), center, radius);
 
-            ArrayList<MeshVertex> spherePoints = new ArrayList<>(Arrays.asList(new MeshVertex[pointCount]));
-            int sizeOffset = vertices.size();
+            vertices.addAll(sphereDataPair.getKey());
+            indices.addAll(sphereDataPair.getValue());
+        }
 
-            // Sets the defined points.
-            // The ID is calculated relative to the points already in the list.
-            // The names are based on staring at the circle from the z axis.
-            MeshVertex topPoint = new MeshVertex(center.x, center.y + (float) radius, center.z, sizeOffset);
-            // Bottom point is the last point in the index to make locating it and calculating
-            MeshVertex bottomPoint = new MeshVertex(center.x, center.y - (float) radius, center.z, sizeOffset + pointCount - 1);
-
-            // Adds them to their proper spots. First and last respectively
-            spherePoints.set(0, topPoint);
-            spherePoints.set(pointCount - 1, bottomPoint);
-
-
-                    /*
-                    Builds a circle.
-                    Calculates the x, y, and z values of points then alters the radian values to complete a circle.
-                    */
-
-            int pointsInCircle = 4 + (points * 4);
-            // This is the size in radians it moves each loop.
-            // The + 1 ensures it will not do 360 and instead stop 1 jump away. This prevents making a copy of a point.
-            float degreeInc = (float) (360.0 / (pointsInCircle));
-            float incrementSize = (float) Math.toRadians(degreeInc);
-            int pointsIncrease = (points * 2) + 1;
-            // Loop to set the points.
-
-            int setCount = 0;
-            // Yes these end late. This is to allow for proper setting of values where x, y, or z equal 0 (relative to the center of course)
-            for(int i = 1; i <= pointsIncrease; i++) { // Top to bottom.
-                // Starts at 1 as 0 is the top point and is already calculated
-                // To prevent ridiculous values all coordinates are rounded to 3 decimal places
-                float yVal = Math.round( (radius * Math.cos(incrementSize * i)) * 1000f ) / 1000f;
-                float xVal = Math.round( (radius * Math.sin(incrementSize * i)) * 1000f ) / 1000f;
-
-                for(int h = 0; h < pointsInCircle; h++) { // Left to right. Loops around.
-                    // pointsInCircle - 1 is to prevent a full loop.
-                    // Sets the degree/radian value here.
-                    // This is the value in radians it has incremented around the circle.
-                    // It should never reach pointsInCircle as that would be 360.
-                    float radVal = incrementSize * h;
-
-                    // Calculates the z and x coordinates. X is the radius of this circle. Y remains unchanged and unused.
-                    float zVal = Math.round(((xVal * Math.sin(radVal)) * 1000f)) / 1000f;
-                    float xValNew = Math.round(((xVal * Math.cos(radVal)) * 1000f)) / 1000f;
-
-                    // Ok! So these both assume the circle is at 0, 0, 0.
-                    // We can use this to our advantage and treat the values as the difference between the center and the point.
-                    // First, however, it defines the point.
-                    spherePoints.set(i + (pointsIncrease * h), new MeshVertex(center.x + xValNew, center.y + yVal, center.z + zVal, sizeOffset + i + (pointsIncrease * h)) );
-                    setCount++;
-                }
-            }
-
-            vertices.addAll(spherePoints);
-            ArrayList<MeshIndex> sphereIndices = new ArrayList<>();
-
-            MeshCore core = new MeshCore(center, false);
-
-            // Now it sets indices.
-            // Starts by setting all connections to the top and bottom.
-            for(int i = 0; i < pointsInCircle; i++) {
-                // Sets the ID it's connecting to the top point
-                int ID = 1 + (i * pointsIncrease);
-                // Sets the ID next to it. If it's the last number it connects to 1.
-                // Otherwise, it connects to the next ID up.
-                int nextID = (i == (pointsInCircle - 1) ? 1 : ID + pointsIncrease);
-                // Adds the index.
-                sphereIndices.add(new MeshIndex(spherePoints.get(0), spherePoints.get(ID), spherePoints.get(nextID), core));
-            }
-
-            // Same but with the bottom.
-            for(int i = 0; i < pointsInCircle; i++) {
-                // Sets the ID it's connecting to the top point
-                int ID = pointsIncrease + (i * pointsIncrease);
-                // Sets the ID next to it. If it's the last number it connects to 1.
-                // Otherwise, it connects to the next ID up.
-                int nextID = (i == (pointsInCircle - 1) ? pointsIncrease : ID + pointsIncrease);
-                // Adds the index.
-                sphereIndices.add(new MeshIndex(spherePoints.get(spherePoints.size() - 1), spherePoints.get(ID), spherePoints.get(nextID), core));
-            }
-
-            for(int h = 0; h < pointsIncrease - 1; h++) {
-                for(int i = 0; i < pointsInCircle; i++) {
-                    // Sets the ID it's connecting to the top point
-                    int ID = (h + 1) + (i * pointsIncrease);
-                    int ID_P = (i == (pointsInCircle - 1) ? 1 + h : ID + pointsIncrease);
-                    int ID_D = ID + 1;
-                    int ID_P_D = ID_P + 1;
-                    sphereIndices.add(new MeshIndex(spherePoints.get(ID), spherePoints.get(ID_P), spherePoints.get(ID_D), core));
-                    sphereIndices.add(new MeshIndex(spherePoints.get(ID_P_D), spherePoints.get(ID_P), spherePoints.get(ID_D), core));
-                }
-            }
-
-
-            indices.addAll(sphereIndices);
+        else if(shape.equalsIgnoreCase("plane")) {
+            AbstractMap.SimpleEntry<ArrayList<MeshVertex>, ArrayList<MeshIndex>> planeDataPair =
+                    meshPlusTools.generatePlane(xCount, xSpacing, zCount, zSpacing, vertices.size());
+            vertices.addAll(planeDataPair.getKey());
+            indices.addAll(planeDataPair.getValue());
         }
     }
+
+
+    // ------------------------------
+    // Getters and setters
+    // ------------------------------
 
     private MeshCore getMeshCore(double[] optimizedLine) {
         // Index the specified core is at. If it's -1 it gets the default core.
@@ -668,6 +665,42 @@ public class MeshConstructor {
             spot++;
         }
         return shorts;
+    }
+
+    public int getVBO() {
+        return vboID;
+    }
+
+    public int getVAO() {
+        return vaoID;
+    }
+
+    public int getEBO() {
+        return eboID;
+    }
+
+
+    // ------------------------------
+    // Tools
+    // ------------------------------
+
+    private String lineCommentHandler(String line) {
+        String modLine;
+        String[] splitLine = line.trim().split("//");
+        if(splitLine.length == 1)
+            return line;
+
+        // Modifies the line to get the substring minus the comment.
+        // The nightmare below gets the starting index of the comment VVV
+        modLine = line.substring( 0, (line.length() - 1) - splitLine[splitLine.length - 1].length() - 2 ).trim();
+
+        return modLine;
+    }
+
+    public void dispose() {
+        GL40.glDeleteBuffers(vboID);
+        GL40.glDeleteVertexArrays(vaoID);
+        GL40.glDeleteBuffers(eboID);
     }
 
 
