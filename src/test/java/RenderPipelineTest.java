@@ -51,7 +51,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         testFB = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        File file = new File("C:\\Users\\sebas\\IdeaProjects\\LibGDX-Toolbox\\Toolbox\\resources\\DoNotPush\\Meshes\\TestTile.obj");
+        File file = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\TestTile.obj");
 
         try {
             meshPlus = new MeshPlus(Files.readString(file.toPath()), "Test Mesh");
@@ -59,8 +59,8 @@ public class RenderPipelineTest extends ApplicationAdapter {
             throw new RuntimeException(e);
         }
 
-        File file2 = new File("C:\\Users\\sebas\\IdeaProjects\\LibGDX-Toolbox\\Toolbox\\resources\\DoNotPush\\Shaders\\DefaultShader\\DefaultVertex.glsl");
-        File file3 = new File("C:\\Users\\sebas\\IdeaProjects\\LibGDX-Toolbox\\Toolbox\\resources\\DoNotPush\\Shaders\\DefaultShader\\DefaultFragment.glsl");
+        File file2 = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\DefaultShader\\DefaultVertex.glsl");
+        File file3 = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\DefaultShader\\DefaultFragment.glsl");
         try {
             shader = new GlobalShader(Files.readString(file2.toPath()),
                     Files.readString(file3.toPath()));
@@ -124,23 +124,9 @@ public class RenderPipelineTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClear(GL40.GL_COLOR_BUFFER_BIT | GL40.GL_DEPTH_BUFFER_BIT);
         camera.update();
+
         RenderPipeline.globalShaders.get("TestShader").setUniformMatrix("u_projTrans", camera.combined);
-        renderPipeline.renderScene("Main", new testInstructions(), true);
-        renderPipeline.displayLastScene();
-        shader.render(GL40.GL_TRIANGLES, meshPlus);
-    }
-
-    @Override
-    public void dispose() {
-        testFB.dispose();
-        //testTex.dispose();
-        renderPipeline.dispose();
-    }
-
-    private class testInstructions implements RenderInstructions {
-        @Override
-        public void render(Scene scene) {
-
+        renderPipeline.renderScene("Main", scene -> {
             Gdx.gl.glClearColor(0f, 1f, 1f, 1f);
             GlobalShader shader = RenderPipeline.globalShaders.get("TestShader");
             camera.update();
@@ -151,6 +137,17 @@ public class RenderPipelineTest extends ApplicationAdapter {
                     scene.getRenderablesFromKey("Test"));
             scene.endFrameBuffer();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
-        }
+        }, true);
+
+
+        renderPipeline.displayLastScene();
+        shader.render(GL40.GL_TRIANGLES, meshPlus);
+    }
+
+    @Override
+    public void dispose() {
+        testFB.dispose();
+        //testTex.dispose();
+        renderPipeline.dispose();
     }
 }

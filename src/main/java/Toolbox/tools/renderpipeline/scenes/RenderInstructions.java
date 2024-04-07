@@ -1,5 +1,6 @@
 package Toolbox.tools.renderpipeline.scenes;
 
+@FunctionalInterface
 public interface RenderInstructions {
 
     // Used to let people write instructions to render a scene.
