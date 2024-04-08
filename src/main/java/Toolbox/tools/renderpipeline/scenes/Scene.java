@@ -19,6 +19,7 @@ public class Scene {
     private String sceneName;
     private FrameBuffer frameBuffer; // What to render it to. If null then it's rendered directly to the screen
     private HashMap<String, List<Renderable>> sceneContents;
+    private HashMap<String, Object> sceneObjects;
 
 
     public Scene(String sceneName, FrameBuffer frameBuffer) {
@@ -26,6 +27,7 @@ public class Scene {
         this.frameBuffer = frameBuffer;
 
         sceneContents = new HashMap<>();
+        sceneObjects = new HashMap<>();
     }
 
     // This adds a renderable under a specific key.
@@ -44,11 +46,30 @@ public class Scene {
         }
     }
 
-    public List<Renderable> getRenderablesFromKey(String key) {
+    public List<Renderable> getRenderablesByKey(String key) {
         if(sceneContents.containsKey(key)) {
             return sceneContents.get(key);
         }
         return new ArrayList<>();
+    }
+
+    public void deleteRenderableByKey(String key) {
+        sceneContents.remove(key);
+    }
+
+    public void addObject(String key, Object object) {
+        sceneObjects.put(key, object);
+    }
+
+    public Object getObjectByKey(String key) {
+        if(!sceneObjects.containsKey(key)) {
+            return null;
+        }
+        return sceneObjects.get(key);
+    }
+
+    public void deleteObjectByKey(String key) {
+        sceneObjects.remove(key);
     }
 
     // --------------------

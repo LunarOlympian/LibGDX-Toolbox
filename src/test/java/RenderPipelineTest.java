@@ -113,9 +113,11 @@ public class RenderPipelineTest extends ApplicationAdapter {
         RenderPipeline.globalShaders.put("TestShader", shader);
 
         Scene scene = new Scene("Main", testFB);
+        scene.addObject("camera", camera);
 
         MeshInstance instance = new MeshInstance(meshTemplate, "Test instance");
-        instance.overrideComponent("coord_offset", new Vector4(2f, 0f, 2f, 0f));
+        instance.overrideComponent("coord_offset", new Vector4(0f, 0f, 0f, 0f));
+        instance.overrideComponent("scale", 0.1f);
         instance.render(shader, GL40.GL_TRIANGLES);
 
         scene.addRenderables("Test", instance);
@@ -135,12 +137,13 @@ public class RenderPipelineTest extends ApplicationAdapter {
         renderPipeline.renderScene("Main", scene -> {
             Gdx.gl.glClearColor(0f, 1f, 1f, 1f);
             GlobalShader shader = RenderPipeline.globalShaders.get("TestShader");
+            Camera camera = (Camera) scene.getObjectByKey("camera");
             camera.update();
             shader.setUniformMatrix("u_projTrans", camera.combined);
             scene.beginFrameBuffer();
             scene.clearScreen();
             scene.render(GL40.GL_TRIANGLES, RenderPipeline.globalShaders.get("TestShader"),
-                    scene.getRenderablesFromKey("Test"));
+                    scene.getRenderablesByKey("Test"));
             scene.endFrameBuffer();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
         }, true);
