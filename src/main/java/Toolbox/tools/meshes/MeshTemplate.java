@@ -1,25 +1,26 @@
-package Toolbox.tools.meshesplus;
+package Toolbox.tools.meshes;
 
 import Toolbox.interfaces.Renderable;
 import Toolbox.interfaces.ToolBoxDisposable;
 import Toolbox.tools.groups.Pair;
-import Toolbox.tools.meshesplus.meshdata.MeshData;
-import Toolbox.tools.meshesplus.meshparts.MeshCore;
-import Toolbox.tools.meshesplus.meshparts.MeshIndex;
-import Toolbox.tools.meshesplus.meshparts.MeshVertex;
-import Toolbox.tools.meshesplus.tools.MeshPlusBuilder;
-import Toolbox.tools.meshesplus.tools.MeshPlusTools;
+import Toolbox.tools.meshes.meshdata.MeshData;
+import Toolbox.tools.meshes.meshparts.MeshCore;
+import Toolbox.tools.meshes.meshparts.MeshIndex;
+import Toolbox.tools.meshes.meshparts.MeshVertex;
+import Toolbox.tools.meshes.tools.MeshTemplateBuilder;
+import Toolbox.tools.meshes.tools.MeshTools;
 import Toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Vector3;
 import org.lwjgl.opengl.GL40;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MeshPlus implements Renderable, ToolBoxDisposable {
+public class MeshTemplate implements Renderable, ToolBoxDisposable {
 
-    private MeshPlusTools meshPlusTools = new MeshPlusTools();
+    private MeshTools meshTools = new MeshTools();
     // --------------------------------------------------
     // Variable declaration
     // --------------------------------------------------
@@ -31,15 +32,23 @@ public class MeshPlus implements Renderable, ToolBoxDisposable {
     // --------------------------------------------------
     private MeshData data;
     private HashMap<String, Object> components; // Completely optional and determined by the user.
+    private ArrayList<String> componentNames;
 
     // --------------------------------------------------
     // Constructors
     // --------------------------------------------------
-    public MeshPlus(String template, String ID) {
+    public MeshTemplate(String template, String ID) {
         this.template = template;
-        Pair<MeshData, HashMap<String, Object>> parserOutput = MeshPlusBuilder.buildFromTemplate(template, ID);
+        Pair<MeshData, HashMap<String, Object>> parserOutput = MeshTemplateBuilder.buildFromTemplate(template, ID);
         this.data = parserOutput.getFirst();
         this.components = parserOutput.getSecond();
+
+        // Adds some default components in. The / just denotes options on the component names
+        componentNames = new ArrayList<>();
+        components.put("scale", 1.0f);
+        components.put("coord_offset", new Vector3(0f, 0f, 0f));
+        componentNames.add("scale");
+        componentNames.add("coord_offset");
     }
 
     public Object getComponent(String component) {
@@ -52,9 +61,21 @@ public class MeshPlus implements Renderable, ToolBoxDisposable {
         return components;
     }
 
-    public void updateComponent(String componentName, Object value) {
+    public ArrayList<String> getComponentNames() {
+        return componentNames;
+    }
+
+    public void setComponent(String componentName, Object value) {
         // This changes a few things, but actual movement is done in the shader.
         components.put(componentName, value);
+        if(!componentNames.contains(componentName)) {
+            componentNames.add(componentName);
+        }
+    }
+
+    public void deleteComponent(String componentName) {
+        components.remove(componentName);
+        componentNames.remove(componentName);
     }
 
     // --------------------------------------------------

@@ -1,4 +1,4 @@
-package Toolbox.tools.meshesplus.meshparts;
+package Toolbox.tools.meshes.meshparts;
 
 public class MeshCore {
     MeshVertex location;

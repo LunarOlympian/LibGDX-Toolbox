@@ -1,7 +1,7 @@
 import Toolbox.tools.lighting.LightSource;
-import Toolbox.tools.meshesplus.MeshPlus;
+import Toolbox.tools.meshes.MeshInstance;
+import Toolbox.tools.meshes.MeshTemplate;
 import Toolbox.tools.renderpipeline.RenderPipeline;
-import Toolbox.tools.renderpipeline.scenes.RenderInstructions;
 import Toolbox.tools.renderpipeline.scenes.Scene;
 import Toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector4;
 import org.lwjgl.opengl.GL40;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
     private OrthographicCamera fbCamera;
     private SpriteBatch batch;
-    private MeshPlus meshPlus;
+    private MeshTemplate meshTemplate;
 
 
     @Override
@@ -54,7 +55,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
         File file = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\TestTile.obj");
 
         try {
-            meshPlus = new MeshPlus(Files.readString(file.toPath()), "Test Mesh");
+            meshTemplate = new MeshTemplate(Files.readString(file.toPath()), "Test Mesh");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -108,11 +109,16 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
 
         renderPipeline = new RenderPipeline(fbCamera, batch);
-        renderPipeline.addDisposable(meshPlus);
+        renderPipeline.addDisposable(meshTemplate);
         RenderPipeline.globalShaders.put("TestShader", shader);
 
         Scene scene = new Scene("Main", testFB);
-        scene.addRenderables("Test", meshPlus);
+
+        MeshInstance instance = new MeshInstance(meshTemplate, "Test instance");
+        instance.overrideComponent("coord_offset", new Vector4(2f, 0f, 2f, 0f));
+        instance.render(shader, GL40.GL_TRIANGLES);
+
+        scene.addRenderables("Test", instance);
         renderPipeline.addDisposable(testFB);
         // renderPipeline.addDisposable(lightSource);
         renderPipeline.addScene(scene);
@@ -141,7 +147,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
 
         renderPipeline.displayLastScene();
-        shader.render(GL40.GL_TRIANGLES, meshPlus);
+        shader.render(GL40.GL_TRIANGLES, meshTemplate);
     }
 
     @Override

@@ -2,7 +2,7 @@ package Toolbox.tools.lighting;
 
 
 import Toolbox.interfaces.ToolBoxDisposable;
-import Toolbox.tools.meshesplus.MeshPlus;
+import Toolbox.tools.meshes.MeshTemplate;
 import Toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -96,11 +96,11 @@ public class LightSource implements ToolBoxDisposable {
         begun = true;
     }
 
-    public void render(MeshPlus meshPlus) {
+    public void render(MeshTemplate meshTemplate) {
         if(begun) {
             // This renders the light source to a frame buffer.
             shader.setUniformMatrix("proj", light.combined);
-            shader.render(GL40.GL_TRIANGLES, meshPlus);
+            shader.render(GL40.GL_TRIANGLES, meshTemplate);
         }
         else {
             throw new RuntimeException("Run LightSource.begin() before rendering with the light source.");

@@ -1,7 +1,7 @@
 package Toolbox.tools.shaders;
 
 import Toolbox.interfaces.ToolBoxDisposable;
-import Toolbox.tools.meshesplus.MeshPlus;
+import Toolbox.tools.meshes.MeshTemplate;
 import Toolbox.tools.shaders.ShaderTools.ShaderFunction;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
@@ -13,6 +13,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.MatchResult;
@@ -23,7 +24,7 @@ public class GlobalShader implements ToolBoxDisposable {
     // Goal is to enable conversion between LibGDX and LWJGL shaders. However, I'm practically only gonna
     // use this for geometry shaders :)
     private final int[] shaders = new int[3];
-    private ObjectIntMap<String> uniforms;
+    private HashMap<String, Integer> uniforms;
 
     private int programID;
     private IntBuffer params;
@@ -102,7 +103,7 @@ public class GlobalShader implements ToolBoxDisposable {
 
         this.params = BufferUtils.newIntBuffer(1);
         this.type = BufferUtils.newIntBuffer(1);
-        this.uniforms = new ObjectIntMap<>();
+        this.uniforms = new HashMap<>();
         this.uniformSizes = new ObjectIntMap<>();
         this.uniformTypes = new ObjectIntMap<>();
         fetchUniforms();
@@ -146,11 +147,11 @@ public class GlobalShader implements ToolBoxDisposable {
     // -------------------------------
 
     // Defaults to triangles
-    public void render(MeshPlus mesh) {
+    public void render(MeshTemplate mesh) {
         render(GL40.GL_TRIANGLES, mesh);
     }
 
-    public void render(int renderType, MeshPlus mesh) {
+    public void render(int renderType, MeshTemplate mesh) {
         // TODO implement ShaderProgram as a render option.
         GL40.glUseProgram(programID);
         // Bind the vertex array and buffer
@@ -247,6 +248,17 @@ public class GlobalShader implements ToolBoxDisposable {
         GL40.glUseProgram(programID);
         GL40.glUniform1i(fetchUniform(name), value);
         GL40.glUseProgram(0);
+    }
+
+    public boolean hasUniform(String uniform) {
+        if(Arrays.stream(uniformNames).toList().contains(uniform)) {
+            return true;
+        }
+        return false;
+    }
+
+    public HashMap<String, Integer> getUniforms() {
+        return uniforms;
     }
 
     // -------------------------------
@@ -350,7 +362,10 @@ public class GlobalShader implements ToolBoxDisposable {
     }
 
     private int fetchUniform(String name) {
-        return this.uniforms.get(name, -1);
+        if(!this.uniforms.containsKey(name)) {
+            return -1;
+        }
+        return this.uniforms.get(name);
     }
 
     private void setVertexAttributes() {

@@ -1,4 +1,4 @@
-package Toolbox.tools.meshesplus.meshparts;
+package Toolbox.tools.meshes.meshparts;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;

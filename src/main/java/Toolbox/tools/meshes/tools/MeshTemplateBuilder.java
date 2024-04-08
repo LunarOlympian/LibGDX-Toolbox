@@ -1,11 +1,11 @@
-package Toolbox.tools.meshesplus.tools;
+package Toolbox.tools.meshes.tools;
 
 import Toolbox.tools.groups.Pair;
 import Toolbox.tools.groups.Trio;
-import Toolbox.tools.meshesplus.meshdata.MeshData;
-import Toolbox.tools.meshesplus.meshparts.MeshCore;
-import Toolbox.tools.meshesplus.meshparts.MeshIndex;
-import Toolbox.tools.meshesplus.meshparts.MeshVertex;
+import Toolbox.tools.meshes.meshdata.MeshData;
+import Toolbox.tools.meshes.meshparts.MeshCore;
+import Toolbox.tools.meshes.meshparts.MeshIndex;
+import Toolbox.tools.meshes.meshparts.MeshVertex;
 import com.badlogic.gdx.utils.BufferUtils;
 import org.lwjgl.opengl.GL40;
 
@@ -18,8 +18,8 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MeshPlusBuilder implements Serializable {
-    private MeshPlusTools meshPlusTools = new MeshPlusTools();
+public class MeshTemplateBuilder implements Serializable {
+    private MeshTools meshTools = new MeshTools();
     // --------------------
     // Methods
     // --------------------
@@ -326,7 +326,7 @@ public class MeshPlusBuilder implements Serializable {
         // Not a TON of code, just a lot of comments :)
         if(shape.equalsIgnoreCase("Sphere") && center != null) {
             AbstractMap.SimpleEntry<ArrayList<MeshVertex>, ArrayList<MeshIndex>> sphereDataPair =
-                    meshPlusTools.generateSphere(points, vertices.size(), center, radius);
+                    meshTools.generateSphere(points, vertices.size(), center, radius);
 
             vertices.addAll(sphereDataPair.getKey());
             indices.addAll(sphereDataPair.getValue());
@@ -334,7 +334,7 @@ public class MeshPlusBuilder implements Serializable {
 
         else if(shape.equalsIgnoreCase("plane")) {
             AbstractMap.SimpleEntry<ArrayList<MeshVertex>, ArrayList<MeshIndex>> planeDataPair =
-                    meshPlusTools.generatePlane(xCount, xSpacing, zCount, zSpacing, vertices.size());
+                    meshTools.generatePlane(xCount, xSpacing, zCount, zSpacing, vertices.size());
             vertices.addAll(planeDataPair.getKey());
             indices.addAll(planeDataPair.getValue());
         }

@@ -1,4 +1,4 @@
-package Toolbox.tools.meshesplus.meshparts;
+package Toolbox.tools.meshes.meshparts;
 
 import java.util.ArrayList;
 import java.util.Objects;

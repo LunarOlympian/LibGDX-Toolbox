@@ -1,16 +1,16 @@
-package Toolbox.tools.meshesplus.tools;
+package Toolbox.tools.meshes.tools;
 
 
 
-import Toolbox.tools.meshesplus.meshparts.MeshCore;
-import Toolbox.tools.meshesplus.meshparts.MeshIndex;
-import Toolbox.tools.meshesplus.meshparts.MeshVertex;
+import Toolbox.tools.meshes.meshparts.MeshCore;
+import Toolbox.tools.meshes.meshparts.MeshIndex;
+import Toolbox.tools.meshes.meshparts.MeshVertex;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MeshPlusTools {
+public class MeshTools {
 
     public AbstractMap.SimpleEntry<ArrayList<MeshVertex>, ArrayList<MeshIndex>> generateSphere
                     (int points, int sizeOffset, MeshVertex center, double radius) {

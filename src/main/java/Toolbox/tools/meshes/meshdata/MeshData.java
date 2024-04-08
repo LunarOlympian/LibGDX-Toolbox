@@ -1,9 +1,9 @@
-package Toolbox.tools.meshesplus.meshdata;
+package Toolbox.tools.meshes.meshdata;
 
 
-import Toolbox.tools.meshesplus.meshparts.MeshCore;
-import Toolbox.tools.meshesplus.meshparts.MeshIndex;
-import Toolbox.tools.meshesplus.meshparts.MeshVertex;
+import Toolbox.tools.meshes.meshparts.MeshCore;
+import Toolbox.tools.meshes.meshparts.MeshIndex;
+import Toolbox.tools.meshes.meshparts.MeshVertex;
 
 import java.nio.ShortBuffer;
 import java.util.ArrayList;

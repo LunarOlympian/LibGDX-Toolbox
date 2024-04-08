@@ -9,6 +9,7 @@ public class ShaderFunction {
 
     public final static int lightMapDistance = 0;
     public final static int lightDistancePoint = 1;
+    public final static int updatePosition = 3;
 
 
     public final static String[] prebuiltFunctions = new String[] {
@@ -67,7 +68,15 @@ public class ShaderFunction {
                         
                         return 0;
                     }
-               }"""
+               }""",
+
+
+            """
+            vec4 updatePosition(vec4 originalPos, vec4 newPos) {
+                originalPos = originalPos + newPos;
+                return originalPos;
+            }
+            """
 
             // Issue here is the small pixels block light from hitting the side, but only in certain areas.
             // This creates a fairly weird effect.
