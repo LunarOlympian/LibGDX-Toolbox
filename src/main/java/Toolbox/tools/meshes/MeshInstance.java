@@ -21,6 +21,7 @@ public class MeshInstance implements Renderable {
         this.mesh = mesh;
         overriddenComponents = new HashMap<>();
         overriddenNames = new ArrayList<>();
+        this.ID = ID;
     }
 
     public void overrideComponent(String component, Object value) {

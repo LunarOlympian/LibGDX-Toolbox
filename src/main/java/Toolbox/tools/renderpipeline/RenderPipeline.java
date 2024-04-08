@@ -78,7 +78,7 @@ public class RenderPipeline implements ToolBoxDisposable {
 
     // --------------------
     // Scene management
-    // --------------------]
+    // --------------------
     public void disposeScene(String ID) {
         data.getScenes().get(ID).dispose();
         data.getScenes().remove(ID);
