@@ -48,11 +48,8 @@ public class RenderPipeline implements ToolBoxDisposable {
             throw new RuntimeException("Invalid scene name: " + name);
         }
         instructions.render(data.getScenes().get(name));
-        System.out.println("1");
         data.setLastRender(getSceneTexture(name));
-        System.out.println("2");
         if(renderDirectlyToScreen) {
-            System.out.println("3");
             displayLastScene();
         }
     }
@@ -61,14 +58,12 @@ public class RenderPipeline implements ToolBoxDisposable {
         if(data.getBatch() == null)
             throw new NullPointerException("SpriteBatch and camera haven't been set for this render buffer.");
         else {
-            System.out.println("4");
             SpriteBatch batch = data.getBatch();
             batch.setProjectionMatrix(data.getFbCamera().combined);
             data.getLastRender().bind();
             batch.flush();
 
             batch.begin();
-            System.out.println("5");
             batch.draw(data.getLastRender(), 0, 0);
             batch.end();
         }

@@ -103,11 +103,15 @@ public class Scene {
     }
 
     public void beginFrameBuffer() {
-        this.frameBuffer.begin();
+        frameBuffer.begin();
     }
 
     public void endFrameBuffer() {
-        this.frameBuffer.end();
+        frameBuffer.end();
+    }
+
+    public FrameBuffer getFrameBuffer() {
+        return frameBuffer;
     }
 
     public void clearScreen() {
