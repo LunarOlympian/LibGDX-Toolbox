@@ -3,6 +3,7 @@ package Toolbox.tools.renderpipeline.scenes;
 import Toolbox.interfaces.Renderable;
 import Toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import org.lwjgl.opengl.GL40;
@@ -17,14 +18,14 @@ public class Scene {
     // TODO add a default shader and render instruction to render the scene.
 
     private String sceneName;
-    private FrameBuffer frameBuffer; // What to render it to. If null then it's rendered directly to the screen
+    private FrameBuffer sceneBuffer; // What to render it to. If null then it's rendered directly to the screen
     private HashMap<String, List<Renderable>> sceneContents;
     private HashMap<String, Object> sceneObjects;
 
 
     public Scene(String sceneName, FrameBuffer frameBuffer) {
         this.sceneName = sceneName;
-        this.frameBuffer = frameBuffer;
+        sceneBuffer = frameBuffer;
 
         sceneContents = new HashMap<>();
         sceneObjects = new HashMap<>();
@@ -78,6 +79,10 @@ public class Scene {
     public String getSceneName() {
         return sceneName;
     }
+
+    public void updateBuffer(FrameBuffer buffer) {
+        sceneBuffer = buffer;
+    }
     // --------------------
 
 
@@ -86,8 +91,7 @@ public class Scene {
     // Asset management
     // --------------------
     public Texture getTexture() {
-        System.out.println(frameBuffer.getColorBufferTexture().getTextureObjectHandle() + " " + sceneName);
-        return frameBuffer.getColorBufferTexture();
+        return sceneBuffer.getColorBufferTexture();
     }
     // --------------------
 
@@ -104,15 +108,15 @@ public class Scene {
     }
 
     public void beginFrameBuffer() {
-        frameBuffer.begin();
+        sceneBuffer.begin();
     }
 
     public void endFrameBuffer() {
-        frameBuffer.end();
+        sceneBuffer.end();
     }
 
-    public FrameBuffer getFrameBuffer() {
-        return frameBuffer;
+    public FrameBuffer getSceneBuffer() {
+        return sceneBuffer;
     }
 
     public void clearScreen() {

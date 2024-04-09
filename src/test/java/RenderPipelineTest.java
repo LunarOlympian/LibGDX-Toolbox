@@ -105,9 +105,6 @@ public class RenderPipelineTest extends ApplicationAdapter {
         light.update();
         // lightSource = new LightSource(light, false);
 
-
-
-
         renderPipeline = new RenderPipeline(fbCamera, batch);
         renderPipeline.addDisposable(meshTemplate);
         RenderPipeline.globalShaders.put("TestShader", shader);
@@ -151,6 +148,15 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
         renderPipeline.displayLastScene();
         shader.render(GL40.GL_TRIANGLES, meshTemplate);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        testFB.dispose();
+        testFB = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight(), true);
+
+        // renderPipeline.getScene("Main").updateBuffer(testFB);
     }
 
     @Override
