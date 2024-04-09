@@ -70,7 +70,6 @@ public class RenderPipeline implements ToolBoxDisposable {
     }
 
     public Texture getSceneTexture(String name) {
-        System.out.println("Getting texture for scene " + name);
         return data.getScenes().get(name).getTexture();
     }
     // --------------------

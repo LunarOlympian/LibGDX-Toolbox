@@ -86,6 +86,7 @@ public class Scene {
     // Asset management
     // --------------------
     public Texture getTexture() {
+        System.out.println(frameBuffer.getColorBufferTexture().getTextureObjectHandle() + " " + sceneName);
         return frameBuffer.getColorBufferTexture();
     }
     // --------------------
