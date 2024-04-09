@@ -2,12 +2,11 @@ package Toolbox.tools.renderpipeline;
 
 import Toolbox.interfaces.ToolBoxDisposable;
 import Toolbox.tools.renderpipeline.data.RenderPipelineData;
-import Toolbox.tools.renderpipeline.scenes.RenderInstructions;
+import Toolbox.tools.renderpipeline.scenes.PipelineRenderInstructions;
+import Toolbox.tools.renderpipeline.scenes.SceneRenderInstructions;
 import Toolbox.tools.renderpipeline.scenes.Scene;
 import Toolbox.tools.shaders.GlobalShader;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -23,6 +22,8 @@ public class RenderPipeline implements ToolBoxDisposable {
     public static HashMap<String, GlobalShader> globalShaders = new HashMap<>();
 
     private RenderPipelineData data;
+
+    private FrameBuffer buffer;
     private boolean disposed = false;
 
     // --------------------
@@ -34,10 +35,11 @@ public class RenderPipeline implements ToolBoxDisposable {
     }
 
     // To allow for easy rendering to screen
-    public RenderPipeline(OrthographicCamera screenCamera, SpriteBatch batch) {
+    public RenderPipeline(OrthographicCamera screenCamera, SpriteBatch batch, FrameBuffer pipelineBuffer) {
         data = new RenderPipelineData();
         data.setFbCamera(screenCamera);
         data.setBatch(batch);
+        this.buffer = pipelineBuffer;
     }
     // --------------------
 
@@ -47,7 +49,7 @@ public class RenderPipeline implements ToolBoxDisposable {
     // Rendering
     // --------------------
     // Renders a specific scene, but only stuff from a specific ID
-    public void renderScene(String name, RenderInstructions instructions, boolean renderDirectlyToScreen) {
+    public void renderScene(String name, SceneRenderInstructions instructions, boolean renderDirectlyToScreen) {
         if(data.getScenes().get(name) == null) {
             throw new RuntimeException("Invalid scene name: " + name);
         }
@@ -56,6 +58,16 @@ public class RenderPipeline implements ToolBoxDisposable {
         if(renderDirectlyToScreen) {
             displayLastScene();
         }
+    }
+
+    public void renderTextures(PipelineRenderInstructions instructions, Texture... textures) {
+        instructions.render(buffer, textures);
+
+        data.getBatch().flush();
+
+        data.getBatch().begin();
+        data.getBatch().draw(buffer.getColorBufferTexture(), 0, 0);
+        data.getBatch().end();
     }
 
     public void displayLastScene() {
@@ -156,6 +168,7 @@ public class RenderPipeline implements ToolBoxDisposable {
             // Sadly disposedOf doesn't work with LibGDX :,(
             disposable.dispose();
         }
+        this.buffer.dispose();
         this.disposed = true;
     }
 
@@ -197,6 +210,10 @@ public class RenderPipeline implements ToolBoxDisposable {
         else {
             throw new NullPointerException("No scene in render pipeline with name " + name);
         }
+    }
+
+    public void setPipelineBuffer(FrameBuffer buffer) {
+        this.buffer = buffer;
     }
 
 

@@ -18,6 +18,6 @@ public class TestingMain {
 
         // Creates the game/application. This is window and all that jazz.
         // Setting to an object is unnecessary.
-        // new Lwjgl3Application(new RenderPipelineTest(), config);
+        new Lwjgl3Application(new RenderPipelineTest(), config);
     }
 }

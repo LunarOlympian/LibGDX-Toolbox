@@ -104,7 +104,8 @@ public class RenderPipelineTest extends ApplicationAdapter {
         light.update();
         // lightSource = new LightSource(light, false);
 
-        renderPipeline = new RenderPipeline(fbCamera, batch);
+        renderPipeline = new RenderPipeline(fbCamera, batch,
+                new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true));
         // renderPipeline.addDisposable(meshTemplate);
         RenderPipeline.globalShaders.put("TestShader", shader);
         // ----------

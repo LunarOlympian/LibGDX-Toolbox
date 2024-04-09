@@ -1,7 +1,7 @@
 package Toolbox.tools.renderpipeline.scenes;
 
 @FunctionalInterface
-public interface RenderInstructions {
+public interface SceneRenderInstructions {
 
     // Used to let people write instructions to render a scene.
     // For example, they could render some meshes black, and render them slightly larger to the frame buffer.
