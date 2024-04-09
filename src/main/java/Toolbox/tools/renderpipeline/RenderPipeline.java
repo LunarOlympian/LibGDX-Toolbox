@@ -60,14 +60,16 @@ public class RenderPipeline implements ToolBoxDisposable {
         }
     }
 
-    public void renderTextures(PipelineRenderInstructions instructions, Texture... textures) {
+    public void renderTextures(boolean directlyToScreen,
+                               PipelineRenderInstructions instructions, Texture... textures) {
         instructions.render(buffer, data.getBatch(), textures);
 
-        data.getBatch().flush();
-
-        data.getBatch().begin();
-        data.getBatch().draw(buffer.getColorBufferTexture(), 0, 0);
-        data.getBatch().end();
+        if(directlyToScreen) {
+            data.getBatch().flush();
+            data.getBatch().begin();
+            data.getBatch().draw(buffer.getColorBufferTexture(), 0, 0);
+            data.getBatch().end();
+        }
     }
 
     public void displayLastScene() {
