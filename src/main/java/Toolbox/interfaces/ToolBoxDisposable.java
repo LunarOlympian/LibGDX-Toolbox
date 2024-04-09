@@ -9,4 +9,6 @@ public interface ToolBoxDisposable {
     void dispose();
 
     boolean rebuild();
+
+    boolean disposedOf();
 }

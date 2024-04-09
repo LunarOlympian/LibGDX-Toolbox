@@ -51,23 +51,6 @@ public class MeshInstance implements Renderable {
         return ID;
     }
 
-    @Override
-    public void render(GlobalShader shader, int type) {
-        // This binds all the components to the shader.
-
-        // First checks the default component values and sets those.
-        //setComponents(mesh.getComponentNames(), mesh.getAllComponents(), shader);
-        // Then it sets the overriden ones
-        setComponents(overriddenNames, overriddenComponents, shader);
-
-        this.mesh.render(shader, type);
-    }
-
-    @Override
-    public void render(ShaderProgram shader, int type) {
-
-    }
-
     private void setComponents(ArrayList<String> components, HashMap<String, Object> map, GlobalShader shader) {
         for(String component : components) {
             // Checks if the shader contains a uniform that's being set by the mesh. If not moves on
@@ -93,9 +76,29 @@ public class MeshInstance implements Renderable {
         }
     }
 
+    public MeshTemplate getTemplate() {
+        return mesh;
+    }
+
 
     // --------------------
     // Rendering
     // --------------------
+    @Override
+    public void render(GlobalShader shader, int type) {
+        // This binds all the components to the shader.
+
+        // First checks the default component values and sets those.
+        //setComponents(mesh.getComponentNames(), mesh.getAllComponents(), shader);
+        // Then it sets the overriden ones
+        setComponents(overriddenNames, overriddenComponents, shader);
+
+        this.mesh.render(shader, type);
+    }
+
+    @Override
+    public void render(ShaderProgram shader, int type) {
+
+    }
 
 }

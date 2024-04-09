@@ -23,6 +23,7 @@ public class RenderPipeline implements ToolBoxDisposable {
     public static HashMap<String, GlobalShader> globalShaders = new HashMap<>();
 
     private RenderPipelineData data;
+    private boolean disposed = false;
 
     // --------------------
     // Constructors
@@ -82,8 +83,8 @@ public class RenderPipeline implements ToolBoxDisposable {
     // --------------------
     // Scene management
     // --------------------
-    public void disposeScene(String ID) {
-        data.getScenes().get(ID).dispose();
+    public void disposeScene(String ID, boolean disposeOfContents) {
+        data.getScenes().get(ID).dispose(disposeOfContents);
         data.getScenes().remove(ID);
     }
     // --------------------
@@ -96,6 +97,9 @@ public class RenderPipeline implements ToolBoxDisposable {
 
     // Adding just allows you to have a nice list of all disposable objects
     public void addDisposable(ToolBoxDisposable disposable) {
+        if(disposable == null) {
+            throw new IllegalArgumentException("Disposable inputs cannot be null.");
+        }
         data.getToolBoxDisposables().add(disposable);
     }
     public void addDisposable(Disposable disposable) {
@@ -131,23 +135,39 @@ public class RenderPipeline implements ToolBoxDisposable {
     // --------------------
     @Override
     public void dispose() {
-        for(Scene scene : data.getScenesAL()) {
-            scene.dispose();
+        for (Scene scene : data.getScenesAL()) {
+            scene.dispose(true);
+        }
+
+        for(GlobalShader shader : globalShaders.values().stream().toList()) {
+            if(!shader.disposedOf()) {
+                shader.dispose();
+            }
         }
 
         // Disposes of other things.
         for(ToolBoxDisposable disposable : data.getToolBoxDisposables()) {
-            disposable.dispose();
+            System.out.println(disposable);
+            if(!disposable.disposedOf()) {
+                disposable.dispose();
+            }
         }
         for(Disposable disposable : data.getLibGDXDisposables()) {
+            // Sadly disposedOf doesn't work with LibGDX :,(
             disposable.dispose();
         }
+        this.disposed = true;
     }
 
     // This should only be disposed of as the last thing.
     @Override
     public boolean rebuild() {
         return false;
+    }
+
+    @Override
+    public boolean disposedOf() {
+        return disposed;
     }
     // --------------------
 
@@ -167,6 +187,15 @@ public class RenderPipeline implements ToolBoxDisposable {
         if(data.getScenesAL().contains(scene)) {
             data.getScenesAL().remove(scene);
             data.getScenes().remove(scene.getSceneName(), scene);
+        }
+    }
+
+    public void updateSceneBuffer(String name, FrameBuffer buffer) {
+        if(data.getScenes().containsKey(name)) {
+            this.getScene(name).updateBuffer(buffer);
+        }
+        else {
+            throw new NullPointerException("No scene in render pipeline with name " + name);
         }
     }
 
