@@ -1,6 +1,7 @@
 package Toolbox.tools.renderpipeline.scenes;
 
 import Toolbox.interfaces.Renderable;
+import Toolbox.interfaces.ToolBoxDisposable;
 import Toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,6 +12,7 @@ import org.lwjgl.opengl.GL40;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Scene {
 
@@ -34,7 +36,10 @@ public class Scene {
     // This adds a renderable under a specific key.
     public void addRenderables(String renderKey, Renderable... renderables) {
         for(Renderable renderable : renderables) {
-            if(sceneContents.containsKey(renderKey)) {
+            if(renderable == null) {
+                throw new NullPointerException("A renderable added to " + sceneName + " is null.");
+            }
+            else if(sceneContents.containsKey(renderKey)) {
                 List<Renderable> renderablesKeyList = sceneContents.get(renderKey);
                 renderablesKeyList.add(renderable);
                 sceneContents.put(renderKey, renderablesKeyList); // Maybe not necessary but probably a good idea.
@@ -129,7 +134,25 @@ public class Scene {
     // --------------------
     // Disposal
     // --------------------
-    public void dispose() {
+    public void dispose(boolean disposeOfContents) {
+        sceneBuffer.dispose();
+
+
+        if(disposeOfContents) {
+            // Loops through contents and disposes of them
+            for(Map.Entry<String, List<Renderable>> contentObjects : sceneContents.entrySet()) {
+
+                for(Renderable contentObject : contentObjects.getValue()) {
+                    if (contentObject instanceof ToolBoxDisposable) {
+                        if(!((ToolBoxDisposable) contentObject).disposedOf()) {
+                            ((ToolBoxDisposable) contentObject).dispose();
+                        }
+                    }
+                }
+
+            }
+        }
+
 
     }
 

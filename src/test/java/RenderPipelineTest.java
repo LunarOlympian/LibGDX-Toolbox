@@ -42,7 +42,6 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
         batch = new SpriteBatch();
 
-
         fbCamera = new OrthographicCamera();
         fbCamera.update();
         this.fbCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -106,9 +105,9 @@ public class RenderPipelineTest extends ApplicationAdapter {
         // lightSource = new LightSource(light, false);
 
         renderPipeline = new RenderPipeline(fbCamera, batch);
-        renderPipeline.addDisposable(meshTemplate);
+        // renderPipeline.addDisposable(meshTemplate);
         RenderPipeline.globalShaders.put("TestShader", shader);
-
+        // ----------
         Scene scene = new Scene("Main", testFB);
         scene.addObject("camera", camera);
 
@@ -116,12 +115,10 @@ public class RenderPipelineTest extends ApplicationAdapter {
         instance.overrideComponent("coord_offset", new Vector4(0f, 0f, 0f, 0f));
         instance.overrideComponent("scale", 0.1f);
         instance.render(shader, GL40.GL_TRIANGLES);
-
         scene.addRenderables("Test", instance);
-        renderPipeline.addDisposable(testFB);
-        // renderPipeline.addDisposable(lightSource);
+        scene.addRenderables("Test mesh", meshTemplate);
+
         renderPipeline.addScene(scene);
-        //renderPipeline.addDisposable(testTex);
         Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
     }
 
@@ -131,6 +128,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
         camera.update();
 
         RenderPipeline.globalShaders.get("TestShader").setUniformMatrix("u_projTrans", camera.combined);
+
         renderPipeline.renderScene("Main", scene -> {
             Gdx.gl.glClearColor(0f, 1f, 1f, 1f);
             GlobalShader shader = RenderPipeline.globalShaders.get("TestShader");
@@ -161,8 +159,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        testFB.dispose();
-        //testTex.dispose();
         renderPipeline.dispose();
+        System.out.println("Done :)");
     }
 }

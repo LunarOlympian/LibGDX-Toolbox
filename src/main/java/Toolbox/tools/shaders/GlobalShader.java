@@ -58,6 +58,8 @@ public class GlobalShader implements ToolBoxDisposable {
 
     private String verticesName; // Defaults to a_position
 
+    private boolean disposed = false;
+
 
 
     // -------------------------------
@@ -193,11 +195,18 @@ public class GlobalShader implements ToolBoxDisposable {
         for(Integer attrib : attributeLocations) {
             GL40.glDeleteBuffers(attrib);
         }
+
+        this.disposed = true;
     }
 
     @Override
     public boolean rebuild() {
         return false;
+    }
+
+    @Override
+    public boolean disposedOf() {
+        return disposed;
     }
 
     // -------------------------------

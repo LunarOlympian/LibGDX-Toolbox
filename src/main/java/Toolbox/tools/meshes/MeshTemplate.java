@@ -33,6 +33,7 @@ public class MeshTemplate implements Renderable, ToolBoxDisposable {
     private MeshData data;
     private HashMap<String, Object> components; // Completely optional and determined by the user.
     private ArrayList<String> componentNames;
+    private boolean disposed = false;
 
     // --------------------------------------------------
     // Constructors
@@ -238,12 +239,18 @@ public class MeshTemplate implements Renderable, ToolBoxDisposable {
         GL40.glDeleteBuffers(data.vboID());
         GL40.glDeleteVertexArrays(data.vaoID());
         GL40.glDeleteBuffers(data.eboID());
+        this.disposed = true;
     }
 
     @Override
     public boolean rebuild() {
         // TODO implement this.
         return true;
+    }
+
+    @Override
+    public boolean disposedOf() {
+        return disposed;
     }
 
 

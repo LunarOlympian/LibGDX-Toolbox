@@ -24,6 +24,8 @@ public class LightSource implements ToolBoxDisposable {
 
     private float brightness;
 
+    private boolean disposed = false;
+
     public LightSource(Camera light, boolean ortho) {
         this.light = light;
         resolution = new Vector2(light.viewportWidth, light.viewportHeight);
@@ -120,11 +122,17 @@ public class LightSource implements ToolBoxDisposable {
     public void dispose() {
         lightBuffer.dispose();
         shader.dispose();
+        this.disposed = true;
     }
 
     @Override
     public boolean rebuild() {
         return false; // Light sources are kinda pointless to rebuild.
+    }
+
+    @Override
+    public boolean disposedOf() {
+        return disposed;
     }
     // --------------------------------------------------
 
