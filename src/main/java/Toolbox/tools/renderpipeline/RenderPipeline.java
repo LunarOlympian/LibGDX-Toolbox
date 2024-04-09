@@ -61,7 +61,7 @@ public class RenderPipeline implements ToolBoxDisposable {
     }
 
     public void renderTextures(PipelineRenderInstructions instructions, Texture... textures) {
-        instructions.render(buffer, textures);
+        instructions.render(buffer, data.getBatch(), textures);
 
         data.getBatch().flush();
 
