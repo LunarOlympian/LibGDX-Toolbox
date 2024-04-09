@@ -5,9 +5,12 @@ import Toolbox.tools.renderpipeline.data.RenderPipelineData;
 import Toolbox.tools.renderpipeline.scenes.RenderInstructions;
 import Toolbox.tools.renderpipeline.scenes.Scene;
 import Toolbox.tools.shaders.GlobalShader;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Disposable;
 
 import java.util.Arrays;
@@ -60,7 +63,7 @@ public class RenderPipeline implements ToolBoxDisposable {
         else {
             SpriteBatch batch = data.getBatch();
             batch.setProjectionMatrix(data.getFbCamera().combined);
-
+            data.getLastRender().bind();
             batch.flush();
 
             batch.begin();
@@ -114,6 +117,13 @@ public class RenderPipeline implements ToolBoxDisposable {
     }
     // --------------------
 
+    public Scene getScene(String name) {
+        if(data.getScenes().isEmpty()) {
+            return null;
+        }
+        return data.getScenes().get(name);
+    }
+
 
 
     // --------------------
@@ -147,7 +157,18 @@ public class RenderPipeline implements ToolBoxDisposable {
     // Getter and setter hell
     // --------------------
     public void addScene(Scene scene) {
+        if(!data.getScenesAL().contains(scene)) {
+            data.getScenesAL().add(scene);
+        }
         data.getScenes().put(scene.getSceneName(), scene);
-        data.getScenesAL().add(scene);
     }
+
+    public void removeScene(Scene scene) {
+        if(data.getScenesAL().contains(scene)) {
+            data.getScenesAL().remove(scene);
+            data.getScenes().remove(scene.getSceneName(), scene);
+        }
+    }
+
+
 }
