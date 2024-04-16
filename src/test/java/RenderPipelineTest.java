@@ -1,9 +1,9 @@
-import Toolbox.tools.lighting.LightSource;
-import Toolbox.tools.meshes.MeshInstance;
-import Toolbox.tools.meshes.MeshTemplate;
-import Toolbox.tools.renderpipeline.RenderPipeline;
-import Toolbox.tools.renderpipeline.scenes.Scene;
-import Toolbox.tools.shaders.GlobalShader;
+import toolbox.tools.lighting.LightSource;
+import toolbox.tools.meshes.MeshInstance;
+import toolbox.tools.meshes.MeshTemplate;
+import toolbox.tools.renderpipeline.RenderPipeline;
+import toolbox.tools.renderpipeline.scenes.Scene;
+import toolbox.tools.shaders.GlobalShader;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -51,7 +51,7 @@ public class RenderPipelineTest extends ApplicationAdapter {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         testFB = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        File file = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\TestTile.obj");
+        File file = new File("C:\\Users\\sebas\\IdeaProjects\\toolbox repos\\GDX-toolbox\\src\\main\\resources\\TestTile.obj");
 
         try {
             meshTemplate = new MeshTemplate(Files.readString(file.toPath()), "Test Mesh");
@@ -59,8 +59,8 @@ public class RenderPipelineTest extends ApplicationAdapter {
             throw new RuntimeException(e);
         }
 
-        File file2 = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\DefaultShader\\DefaultVertex.glsl");
-        File file3 = new File("C:\\Users\\sebas\\IdeaProjects\\Toolbox repos\\GDX-Toolbox\\src\\main\\resources\\DefaultShader\\DefaultFragment.glsl");
+        File file2 = new File("C:\\Users\\sebas\\IdeaProjects\\toolbox repos\\GDX-toolbox\\src\\main\\resources\\DefaultShader\\DefaultVertex.glsl");
+        File file3 = new File("C:\\Users\\sebas\\IdeaProjects\\toolbox repos\\GDX-toolbox\\src\\main\\resources\\DefaultShader\\DefaultFragment.glsl");
         try {
             shader = new GlobalShader(Files.readString(file2.toPath()),
                     Files.readString(file3.toPath()));
@@ -121,6 +121,8 @@ public class RenderPipelineTest extends ApplicationAdapter {
 
         renderPipeline.addScene(scene);
         Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
+
+        shader.buildShaderProgram();
     }
 
     @Override
