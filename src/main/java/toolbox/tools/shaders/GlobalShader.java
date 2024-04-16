@@ -1,17 +1,14 @@
 package toolbox.tools.shaders;
 
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import toolbox.interfaces.ToolBoxDisposable;
-import toolbox.tools.meshes.MeshTemplate;
-import toolbox.tools.shaders.shadertools.ShaderFunction;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import javassist.*;
 import org.lwjgl.opengl.GL40;
+import toolbox.interfaces.ToolBoxDisposable;
+import toolbox.tools.meshes.MeshTemplate;
+import toolbox.tools.shaders.shadertools.ShaderFunction;
 
-import java.lang.reflect.*;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
